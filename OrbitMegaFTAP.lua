@@ -12,12 +12,13 @@ local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 -- ===== ESTADO =====
 local activeOrbits = {}
 local selectedParts = {}
+local orbitOriginalCFrames = {}
 local orbitSettings = {
     pattern = "circle",
     speed = 2,
     radius = 20,
     height = 10,
-    particleSize = 1,
+    maxProps = 20,
     enabled = true,
     keybind = Enum.KeyCode.Z
 }
@@ -90,11 +91,17 @@ local ORBIT_PATTERNS = {
 -- ===== FUNÇÕES CORE =====
 local function getPartsByClassName(className)
     local foundParts = {}
+    local limit = math.max(1, math.floor(orbitSettings.maxProps))
+
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("BasePart") and not obj.Anchored and obj.ClassName == className then
             table.insert(foundParts, obj)
+            if #foundParts >= limit then
+                break
+            end
         end
     end
+
     return foundParts
 end
 
@@ -111,24 +118,39 @@ local function getAllPartTypes()
     return types
 end
 
+local function restoreOrbitParts(className)
+    for part, originalCFrame in pairs(orbitOriginalCFrames) do
+        if part and part.Parent and part.ClassName == className then
+            part.CFrame = originalCFrame
+            orbitOriginalCFrames[part] = nil
+        end
+    end
+end
+
 local function startOrbit(partList, className)
     if #partList == 0 then return end
 
     if activeOrbits[className] then
         activeOrbits[className] = false
         task.wait(0.1)
+        restoreOrbitParts(className)
     end
 
     activeOrbits[className] = true
 
-    for i, part in ipairs(partList) do
+    -- Segurança extra: nunca processa mais props do que o limite escolhido.
+    local total = math.min(#partList, math.max(1, math.floor(orbitSettings.maxProps)))
+
+    for i = 1, total do
+        local part = partList[i]
         if not part or not part.Parent then continue end
 
-        part.CanCollide = false
-        part.Transparency = 0.2
-        part.Color = Color3.fromHSV(i / #partList, 1, 1)
-        part.Size = part.Size * orbitSettings.particleSize
+        -- Guarda a posição original para devolver o prop ao lugar quando parar.
+        if not orbitOriginalCFrames[part] then
+            orbitOriginalCFrames[part] = part.CFrame
+        end
 
+        -- IMPORTANTE: não alteramos CanCollide, cor, transparência ou tamanho.
         task.spawn(function()
             local time = 0
             while part and part.Parent and activeOrbits[className] and orbitSettings.enabled do
@@ -136,7 +158,7 @@ local function startOrbit(partList, className)
 
                 local pattern = ORBIT_PATTERNS[orbitSettings.pattern]
                 if pattern then
-                    local x, y, z = pattern.calculate(i, #partList, time, orbitSettings)
+                    local x, y, z = pattern.calculate(i, total, time, orbitSettings)
                     if humanoidRootPart and humanoidRootPart.Parent then
                         part.Position = humanoidRootPart.Position + Vector3.new(x, y, z)
                         part.Orientation += Vector3.new(5, 10, 5)
@@ -150,6 +172,9 @@ end
 
 local function stopOrbit(className)
     activeOrbits[className] = false
+    task.defer(function()
+        restoreOrbitParts(className)
+    end)
 end
 
 -- ===== GUI =====
@@ -171,7 +196,7 @@ background.Parent = screenGui
 
 local mainContainer = Instance.new("Frame")
 mainContainer.Name = "MainContainer"
-mainContainer.Size = UDim2.fromScale(0.78, 0.78)
+mainContainer.Size = UDim2.fromScale(0.84, 0.84)
 mainContainer.Position = UDim2.fromScale(0.5, 0.5)
 mainContainer.AnchorPoint = Vector2.new(0.5, 0.5)
 mainContainer.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
@@ -181,8 +206,8 @@ mainContainer.Visible = false
 mainContainer.Parent = screenGui
 
 local mainConstraint = Instance.new("UISizeConstraint")
-mainConstraint.MinSize = Vector2.new(700, 520)
-mainConstraint.MaxSize = Vector2.new(1050, 760)
+mainConstraint.MinSize = Vector2.new(760, 570)
+mainConstraint.MaxSize = Vector2.new(1180, 820)
 mainConstraint.Parent = mainContainer
 
 local mainCorner = Instance.new("UICorner")
@@ -409,11 +434,11 @@ for _, key in ipairs(patternOrder) do
 end
 
 -- ===== PROPRIEDADES =====
-local propertiesSection = makeSection(scrollContainer, 310, 2)
+local propertiesSection = makeSection(scrollContainer, 248, 2)
 makeSectionTitle(propertiesSection, "⚙️  PROPRIEDADES")
 
 local propertiesContainer = Instance.new("Frame")
-propertiesContainer.Size = UDim2.new(1, -28, 0, 252)
+propertiesContainer.Size = UDim2.new(1, -28, 0, 190)
 propertiesContainer.Position = UDim2.new(0, 14, 0, 45)
 propertiesContainer.BackgroundTransparency = 1
 propertiesContainer.ZIndex = 4
@@ -514,8 +539,8 @@ end)
 createSlider(propertiesContainer, "Altura", 0, 30, orbitSettings.height, function(value)
     orbitSettings.height = value
 end)
-createSlider(propertiesContainer, "Tamanho das Partes", 0.1, 5, orbitSettings.particleSize, function(value)
-    orbitSettings.particleSize = value
+createSlider(propertiesContainer, "Quantidade de Props", 1, 100, orbitSettings.maxProps, function(value)
+    orbitSettings.maxProps = math.max(1, math.floor(value + 0.5))
 end)
 
 -- ===== PARTS =====
@@ -576,7 +601,7 @@ local function createPartButton(className, count)
     label.Size = UDim2.new(1, -100, 1, 0)
     label.Position = UDim2.new(0, 55, 0, 0)
     label.BackgroundTransparency = 1
-    label.Text = className .. "  •  " .. count .. " partes"
+    label.Text = className .. "  •  " .. count .. " disponíveis"
     label.TextColor3 = Color3.fromRGB(225, 225, 225)
     label.TextSize = 13
     label.Font = Enum.Font.GothamMedium
@@ -653,16 +678,41 @@ local toggleCorner = Instance.new("UICorner")
 toggleCorner.CornerRadius = UDim.new(0, 9)
 toggleCorner.Parent = toggleBtn
 
+local function refreshOrbitState()
+    if orbitSettings.enabled then
+        toggleBtn.Text = "●  ÓRBITA ON"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+        toggleBtn.TextColor3 = Color3.fromRGB(5, 5, 5)
+    else
+        toggleBtn.Text = "●  ÓRBITA OFF"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+        toggleBtn.TextColor3 = Color3.fromRGB(235, 235, 235)
+    end
+end
+
 toggleBtn.MouseButton1Click:Connect(function()
     orbitSettings.enabled = not orbitSettings.enabled
-    if orbitSettings.enabled then
-        toggleBtn.Text = "🟢  ÓRBITA ON"
-        toggleBtn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+
+    if not orbitSettings.enabled then
+        -- Para e devolve os props ao CFrame original sem mexer na colisão.
+        for className in pairs(selectedParts) do
+            if selectedParts[className] then
+                stopOrbit(className)
+            end
+        end
     else
-        toggleBtn.Text = "🔴  ÓRBITA OFF"
-        toggleBtn.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+        -- Retoma somente as categorias que estavam selecionadas.
+        for className in pairs(selectedParts) do
+            if selectedParts[className] then
+                startOrbit(getPartsByClassName(className), className)
+            end
+        end
     end
+
+    refreshOrbitState()
 end)
+
+refreshOrbitState()
 
 local keybindContainer = Instance.new("Frame")
 keybindContainer.Size = UDim2.new(0, 210, 0, 40)
@@ -877,29 +927,35 @@ local function setMenuOpen(state, instant)
         background.Visible = true
         openTab.Visible = false
         menuScale.Scale = 0.94
+        mainContainer.Position = UDim2.fromScale(0.5, 0.53)
         background.BackgroundTransparency = 1
 
         enableFreeMouse()
 
         if instant then
             menuScale.Scale = 1
+            mainContainer.Position = UDim2.fromScale(0.5, 0.5)
             background.BackgroundTransparency = 0.42
         else
             TweenService:Create(menuScale, openTweenInfo, {Scale = 1}):Play()
+            TweenService:Create(mainContainer, openTweenInfo, {Position = UDim2.fromScale(0.5, 0.5)}):Play()
             TweenService:Create(background, openTweenInfo, {BackgroundTransparency = 0.42}):Play()
         end
     else
         -- O mouse continua livre durante a animação de fechamento.
         if instant then
             menuScale.Scale = 0.94
+            mainContainer.Position = UDim2.fromScale(0.5, 0.53)
             background.BackgroundTransparency = 1
             mainContainer.Visible = false
             background.Visible = false
             openTab.Visible = true
         else
             local scaleTween = TweenService:Create(menuScale, closeTweenInfo, {Scale = 0.94})
+            local positionTween = TweenService:Create(mainContainer, closeTweenInfo, {Position = UDim2.fromScale(0.5, 0.53)})
             local bgTween = TweenService:Create(background, closeTweenInfo, {BackgroundTransparency = 1})
             scaleTween:Play()
+            positionTween:Play()
             bgTween:Play()
             scaleTween.Completed:Wait()
 
