@@ -2,6 +2,7 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -173,7 +174,7 @@ mainContainer.Name = "MainContainer"
 mainContainer.Size = UDim2.fromScale(0.78, 0.78)
 mainContainer.Position = UDim2.fromScale(0.5, 0.5)
 mainContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-mainContainer.BackgroundColor3 = Color3.fromRGB(18, 19, 25)
+mainContainer.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
 mainContainer.BorderSizePixel = 0
 mainContainer.ZIndex = 2
 mainContainer.Visible = false
@@ -189,14 +190,45 @@ mainCorner.CornerRadius = UDim.new(0, 18)
 mainCorner.Parent = mainContainer
 
 local mainStroke = Instance.new("UIStroke")
-mainStroke.Color = Color3.fromRGB(55, 60, 75)
+mainStroke.Color = Color3.fromRGB(255, 255, 255)
 mainStroke.Thickness = 1.5
 mainStroke.Parent = mainContainer
+
+-- Título flutuando sobre a borda superior do menu.
+local titleBadge = Instance.new("Frame")
+titleBadge.Name = "TitleBadge"
+titleBadge.Size = UDim2.new(0, 248, 0, 34)
+titleBadge.Position = UDim2.new(0, 24, 0, -17)
+titleBadge.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+titleBadge.BorderSizePixel = 0
+titleBadge.ZIndex = 8
+titleBadge.Parent = mainContainer
+
+local titleBadgeCorner = Instance.new("UICorner")
+titleBadgeCorner.CornerRadius = UDim.new(0, 9)
+titleBadgeCorner.Parent = titleBadge
+
+local titleBadgeStroke = Instance.new("UIStroke")
+titleBadgeStroke.Color = Color3.fromRGB(120, 120, 120)
+titleBadgeStroke.Thickness = 1
+titleBadgeStroke.Parent = titleBadge
+
+local titleBadgeText = Instance.new("TextLabel")
+titleBadgeText.Size = UDim2.new(1, -18, 1, 0)
+titleBadgeText.Position = UDim2.new(0, 9, 0, 0)
+titleBadgeText.BackgroundTransparency = 1
+titleBadgeText.Text = "ORBIT  //  MEGA FTAP"
+titleBadgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleBadgeText.TextSize = 13
+titleBadgeText.Font = Enum.Font.GothamBlack
+titleBadgeText.TextXAlignment = Enum.TextXAlignment.Left
+titleBadgeText.ZIndex = 9
+titleBadgeText.Parent = titleBadge
 
 -- ===== HEADER =====
 local header = Instance.new("Frame")
 header.Size = UDim2.new(1, 0, 0, 64)
-header.BackgroundColor3 = Color3.fromRGB(27, 29, 39)
+header.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
 header.BorderSizePixel = 0
 header.ZIndex = 3
 header.Parent = mainContainer
@@ -209,8 +241,8 @@ local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -170, 1, 0)
 title.Position = UDim2.new(0, 24, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "✨  ULTIMATE ORBIT MENU"
-title.TextColor3 = Color3.fromRGB(115, 205, 255)
+title.Text = "CONTROL PANEL"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.TextSize = 21
 title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
@@ -221,8 +253,8 @@ local closeHint = Instance.new("TextLabel")
 closeHint.Size = UDim2.new(0, 130, 1, 0)
 closeHint.Position = UDim2.new(1, -150, 0, 0)
 closeHint.BackgroundTransparency = 1
-closeHint.Text = "M  •  FECHAR"
-closeHint.TextColor3 = Color3.fromRGB(145, 150, 165)
+closeHint.Text = "M  /  CLOSE"
+closeHint.TextColor3 = Color3.fromRGB(145, 145, 145)
 closeHint.TextSize = 12
 closeHint.Font = Enum.Font.GothamMedium
 closeHint.TextXAlignment = Enum.TextXAlignment.Right
@@ -237,7 +269,7 @@ scrollContainer.Position = UDim2.new(0, 14, 0, 76)
 scrollContainer.BackgroundTransparency = 1
 scrollContainer.BorderSizePixel = 0
 scrollContainer.ScrollBarThickness = 5
-scrollContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 100, 125)
+scrollContainer.ScrollBarImageColor3 = Color3.fromRGB(110, 110, 110)
 scrollContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
 scrollContainer.ZIndex = 3
@@ -257,7 +289,7 @@ scrollLayout.Parent = scrollContainer
 local function makeSection(parent, height, order)
     local section = Instance.new("Frame")
     section.Size = UDim2.new(1, 0, 0, height)
-    section.BackgroundColor3 = Color3.fromRGB(23, 24, 32)
+    section.BackgroundColor3 = Color3.fromRGB(14, 14, 14)
     section.BorderSizePixel = 0
     section.LayoutOrder = order
     section.ZIndex = 3
@@ -268,7 +300,7 @@ local function makeSection(parent, height, order)
     corner.Parent = section
 
     local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(43, 46, 58)
+    stroke.Color = Color3.fromRGB(38, 38, 38)
     stroke.Thickness = 1
     stroke.Parent = section
 
@@ -281,7 +313,7 @@ local function makeSectionTitle(parent, text)
     label.Position = UDim2.new(0, 14, 0, 10)
     label.BackgroundTransparency = 1
     label.Text = text
-    label.TextColor3 = Color3.fromRGB(150, 175, 255)
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.TextSize = 14
     label.Font = Enum.Font.GothamBold
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -314,7 +346,7 @@ local function createPatternButton(key, patternData)
     local btn = Instance.new("TextButton")
     btn.Name = key
     btn.Text = ""
-    btn.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
+    btn.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
     btn.BorderSizePixel = 0
     btn.AutoButtonColor = false
     btn.ZIndex = 5
@@ -325,7 +357,7 @@ local function createPatternButton(key, patternData)
     corner.Parent = btn
 
     local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(55, 58, 72)
+    stroke.Color = Color3.fromRGB(55, 55, 55)
     stroke.Thickness = 1
     stroke.Parent = btn
 
@@ -333,7 +365,7 @@ local function createPatternButton(key, patternData)
     content.Size = UDim2.new(1, -12, 1, -8)
     content.Position = UDim2.new(0, 6, 0, 4)
     content.BackgroundTransparency = 1
-    content.TextColor3 = Color3.fromRGB(205, 208, 220)
+    content.TextColor3 = Color3.fromRGB(225, 225, 225)
     content.TextSize = 12
     content.Font = Enum.Font.GothamMedium
     content.TextWrapped = true
@@ -344,30 +376,30 @@ local function createPatternButton(key, patternData)
     btn.MouseButton1Click:Connect(function()
         orbitSettings.pattern = key
         if selectedPatternButton then
-            selectedPatternButton.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
-            selectedPatternButton.UIStroke.Color = Color3.fromRGB(55, 58, 72)
+            selectedPatternButton.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+            selectedPatternButton.UIStroke.Color = Color3.fromRGB(55, 55, 55)
         end
         selectedPatternButton = btn
-        btn.BackgroundColor3 = Color3.fromRGB(55, 78, 112)
-        stroke.Color = Color3.fromRGB(105, 180, 255)
+        btn.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+        stroke.Color = Color3.fromRGB(255, 255, 255)
     end)
 
     btn.MouseEnter:Connect(function()
         if selectedPatternButton ~= btn then
-            btn.BackgroundColor3 = Color3.fromRGB(42, 45, 58)
+            btn.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
         end
     end)
 
     btn.MouseLeave:Connect(function()
         if selectedPatternButton ~= btn then
-            btn.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
+            btn.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
         end
     end)
 
     if key == orbitSettings.pattern then
         selectedPatternButton = btn
-        btn.BackgroundColor3 = Color3.fromRGB(55, 78, 112)
-        stroke.Color = Color3.fromRGB(105, 180, 255)
+        btn.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+        stroke.Color = Color3.fromRGB(255, 255, 255)
     end
 end
 
@@ -401,7 +433,7 @@ local function createSlider(parent, label, minVal, maxVal, defaultVal, callback)
     local labelText = Instance.new("TextLabel")
     labelText.Size = UDim2.new(1, -80, 0, 22)
     labelText.BackgroundTransparency = 1
-    labelText.TextColor3 = Color3.fromRGB(205, 208, 220)
+    labelText.TextColor3 = Color3.fromRGB(225, 225, 225)
     labelText.TextSize = 13
     labelText.Font = Enum.Font.GothamMedium
     labelText.TextXAlignment = Enum.TextXAlignment.Left
@@ -413,7 +445,7 @@ local function createSlider(parent, label, minVal, maxVal, defaultVal, callback)
     valueText.Size = UDim2.new(0, 70, 0, 22)
     valueText.Position = UDim2.new(1, -70, 0, 0)
     valueText.BackgroundTransparency = 1
-    valueText.TextColor3 = Color3.fromRGB(115, 205, 255)
+    valueText.TextColor3 = Color3.fromRGB(255, 255, 255)
     valueText.TextSize = 13
     valueText.Font = Enum.Font.GothamBold
     valueText.TextXAlignment = Enum.TextXAlignment.Right
@@ -426,7 +458,7 @@ local function createSlider(parent, label, minVal, maxVal, defaultVal, callback)
     sliderBg.Position = UDim2.new(0, 0, 0, 31)
     sliderBg.Text = ""
     sliderBg.AutoButtonColor = false
-    sliderBg.BackgroundColor3 = Color3.fromRGB(48, 50, 62)
+    sliderBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     sliderBg.BorderSizePixel = 0
     sliderBg.ZIndex = 5
     sliderBg.Parent = container
@@ -437,7 +469,7 @@ local function createSlider(parent, label, minVal, maxVal, defaultVal, callback)
 
     local sliderFill = Instance.new("Frame")
     sliderFill.Size = UDim2.new((defaultVal - minVal) / (maxVal - minVal), 0, 1, 0)
-    sliderFill.BackgroundColor3 = Color3.fromRGB(95, 175, 255)
+    sliderFill.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
     sliderFill.BorderSizePixel = 0
     sliderFill.ZIndex = 6
     sliderFill.Parent = sliderBg
@@ -496,7 +528,7 @@ partsScroll.Position = UDim2.new(0, 14, 0, 48)
 partsScroll.BackgroundTransparency = 1
 partsScroll.BorderSizePixel = 0
 partsScroll.ScrollBarThickness = 5
-partsScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 100, 125)
+partsScroll.ScrollBarImageColor3 = Color3.fromRGB(110, 110, 110)
 partsScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 partsScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 partsScroll.ZIndex = 4
@@ -516,7 +548,7 @@ local function createPartButton(className, count)
     btn.Name = className
     btn.Text = ""
     btn.Size = UDim2.new(1, 0, 0, 52)
-    btn.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
+    btn.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
     btn.BorderSizePixel = 0
     btn.AutoButtonColor = false
     btn.ZIndex = 5
@@ -527,7 +559,7 @@ local function createPartButton(className, count)
     corner.Parent = btn
 
     local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(55, 58, 72)
+    stroke.Color = Color3.fromRGB(55, 55, 55)
     stroke.Thickness = 1
     stroke.Parent = btn
 
@@ -545,7 +577,7 @@ local function createPartButton(className, count)
     label.Position = UDim2.new(0, 55, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = className .. "  •  " .. count .. " partes"
-    label.TextColor3 = Color3.fromRGB(205, 208, 220)
+    label.TextColor3 = Color3.fromRGB(225, 225, 225)
     label.TextSize = 13
     label.Font = Enum.Font.GothamMedium
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -556,7 +588,7 @@ local function createPartButton(className, count)
     statusDot.Name = "StatusDot"
     statusDot.Size = UDim2.new(0, 11, 0, 11)
     statusDot.Position = UDim2.new(1, -27, 0.5, -5)
-    statusDot.BackgroundColor3 = Color3.fromRGB(90, 95, 110)
+    statusDot.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
     statusDot.BorderSizePixel = 0
     statusDot.ZIndex = 6
     statusDot.Parent = btn
@@ -570,23 +602,23 @@ local function createPartButton(className, count)
         isActive = not isActive
         selectedParts[className] = isActive
         if isActive then
-            statusDot.BackgroundColor3 = Color3.fromRGB(100, 220, 135)
-            btn.BackgroundColor3 = Color3.fromRGB(45, 66, 58)
-            stroke.Color = Color3.fromRGB(100, 220, 135)
+            statusDot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            stroke.Color = Color3.fromRGB(255, 255, 255)
             startOrbit(getPartsByClassName(className), className)
         else
-            statusDot.BackgroundColor3 = Color3.fromRGB(90, 95, 110)
-            btn.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
-            stroke.Color = Color3.fromRGB(55, 58, 72)
+            statusDot.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+            btn.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+            stroke.Color = Color3.fromRGB(55, 55, 55)
             stopOrbit(className)
         end
     end)
 
     btn.MouseEnter:Connect(function()
-        if not isActive then btn.BackgroundColor3 = Color3.fromRGB(42, 45, 58) end
+        if not isActive then btn.BackgroundColor3 = Color3.fromRGB(32, 32, 32) end
     end)
     btn.MouseLeave:Connect(function()
-        if not isActive then btn.BackgroundColor3 = Color3.fromRGB(32, 34, 44) end
+        if not isActive then btn.BackgroundColor3 = Color3.fromRGB(22, 22, 22) end
     end)
 end
 
@@ -595,7 +627,7 @@ local footer = Instance.new("Frame")
 footer.Name = "Footer"
 footer.Size = UDim2.new(1, 0, 0, 58)
 footer.Position = UDim2.new(0, 0, 1, -58)
-footer.BackgroundColor3 = Color3.fromRGB(27, 29, 39)
+footer.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
 footer.BorderSizePixel = 0
 footer.ZIndex = 4
 footer.Parent = mainContainer
@@ -609,8 +641,8 @@ toggleBtn.Name = "ToggleBtn"
 toggleBtn.Text = "🟢  ÓRBITA ON"
 toggleBtn.Size = UDim2.new(0, 155, 0, 40)
 toggleBtn.Position = UDim2.new(0, 14, 0.5, -20)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(85, 180, 105)
-toggleBtn.TextColor3 = Color3.fromRGB(8, 12, 10)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+toggleBtn.TextColor3 = Color3.fromRGB(5, 5, 5)
 toggleBtn.TextSize = 12
 toggleBtn.Font = Enum.Font.GothamBold
 toggleBtn.BorderSizePixel = 0
@@ -625,17 +657,17 @@ toggleBtn.MouseButton1Click:Connect(function()
     orbitSettings.enabled = not orbitSettings.enabled
     if orbitSettings.enabled then
         toggleBtn.Text = "🟢  ÓRBITA ON"
-        toggleBtn.BackgroundColor3 = Color3.fromRGB(85, 180, 105)
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
     else
         toggleBtn.Text = "🔴  ÓRBITA OFF"
-        toggleBtn.BackgroundColor3 = Color3.fromRGB(190, 85, 85)
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
     end
 end)
 
 local keybindContainer = Instance.new("Frame")
 keybindContainer.Size = UDim2.new(0, 210, 0, 40)
 keybindContainer.Position = UDim2.new(0, 180, 0.5, -20)
-keybindContainer.BackgroundColor3 = Color3.fromRGB(42, 44, 56)
+keybindContainer.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
 keybindContainer.BorderSizePixel = 0
 keybindContainer.ZIndex = 5
 keybindContainer.Parent = footer
@@ -649,7 +681,7 @@ keybindLabel.Size = UDim2.new(1, -72, 1, 0)
 keybindLabel.Position = UDim2.new(0, 12, 0, 0)
 keybindLabel.BackgroundTransparency = 1
 keybindLabel.Text = "🎮 Bind: Z"
-keybindLabel.TextColor3 = Color3.fromRGB(205, 208, 220)
+keybindLabel.TextColor3 = Color3.fromRGB(225, 225, 225)
 keybindLabel.TextSize = 12
 keybindLabel.Font = Enum.Font.GothamBold
 keybindLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -660,7 +692,7 @@ local keybindBtn = Instance.new("TextButton")
 keybindBtn.Text = "Mudar"
 keybindBtn.Size = UDim2.new(0, 64, 1, 0)
 keybindBtn.Position = UDim2.new(1, -64, 0, 0)
-keybindBtn.BackgroundColor3 = Color3.fromRGB(85, 145, 220)
+keybindBtn.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
 keybindBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 keybindBtn.TextSize = 11
 keybindBtn.Font = Enum.Font.GothamBold
@@ -677,7 +709,7 @@ keybindBtn.MouseButton1Click:Connect(function()
     if waitingForBind then return end
     waitingForBind = true
     keybindBtn.Text = "Pressione..."
-    keybindBtn.BackgroundColor3 = Color3.fromRGB(190, 145, 75)
+    keybindBtn.BackgroundColor3 = Color3.fromRGB(170, 170, 170)
 
     local connection
     connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
@@ -685,7 +717,7 @@ keybindBtn.MouseButton1Click:Connect(function()
         orbitSettings.keybind = input.KeyCode
         keybindLabel.Text = "🎮 Bind: " .. input.KeyCode.Name
         keybindBtn.Text = "Mudar"
-        keybindBtn.BackgroundColor3 = Color3.fromRGB(85, 145, 220)
+        keybindBtn.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
         waitingForBind = false
         connection:Disconnect()
     end)
@@ -696,7 +728,7 @@ stopAllBtn.Name = "StopAll"
 stopAllBtn.Text = "⏹  PARAR TUDO"
 stopAllBtn.Size = UDim2.new(0, 150, 0, 40)
 stopAllBtn.Position = UDim2.new(1, -164, 0.5, -20)
-stopAllBtn.BackgroundColor3 = Color3.fromRGB(185, 75, 80)
+stopAllBtn.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
 stopAllBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 stopAllBtn.TextSize = 12
 stopAllBtn.Font = Enum.Font.GothamBold
@@ -715,9 +747,9 @@ stopAllBtn.MouseButton1Click:Connect(function()
     end
     for _, btn in pairs(partsScroll:GetChildren()) do
         if btn:IsA("TextButton") then
-            btn.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
-            btn:FindFirstChild("StatusDot").BackgroundColor3 = Color3.fromRGB(90, 95, 110)
-            btn:FindFirstChildOfClass("UIStroke").Color = Color3.fromRGB(55, 58, 72)
+            btn.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+            btn:FindFirstChild("StatusDot").BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+            btn:FindFirstChildOfClass("UIStroke").Color = Color3.fromRGB(55, 55, 55)
         end
     end
 end)
@@ -725,54 +757,171 @@ end)
 -- ===== ABINHA FECHADA =====
 local openTab = Instance.new("TextButton")
 openTab.Name = "OpenTab"
-openTab.Size = UDim2.new(0, 58, 0, 116)
-openTab.Position = UDim2.new(1, -8, 0.5, -58)
+openTab.Size = UDim2.new(0, 82, 0, 94)
+openTab.Position = UDim2.new(1, -12, 0.5, -47)
 openTab.AnchorPoint = Vector2.new(1, 0)
-openTab.BackgroundColor3 = Color3.fromRGB(27, 29, 39)
+openTab.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 openTab.BorderSizePixel = 0
-openTab.Text = "M\n☰"
-openTab.TextColor3 = Color3.fromRGB(115, 205, 255)
-openTab.TextSize = 17
-openTab.Font = Enum.Font.GothamBold
+openTab.Text = ""
 openTab.AutoButtonColor = false
-openTab.ZIndex = 10
+openTab.ZIndex = 20
 openTab.Parent = screenGui
 
 local tabCorner = Instance.new("UICorner")
-tabCorner.CornerRadius = UDim.new(0, 12)
+tabCorner.CornerRadius = UDim.new(0, 14)
 tabCorner.Parent = openTab
 
 local tabStroke = Instance.new("UIStroke")
-tabStroke.Color = Color3.fromRGB(65, 75, 95)
-tabStroke.Thickness = 1
- tabStroke.Parent = openTab
+tabStroke.Color = Color3.fromRGB(105, 105, 105)
+tabStroke.Thickness = 1.2
+tabStroke.Parent = openTab
+
+local tabKey = Instance.new("TextLabel")
+tabKey.Size = UDim2.new(0, 38, 0, 34)
+tabKey.Position = UDim2.new(0.5, -19, 0, 10)
+tabKey.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+tabKey.Text = "M"
+tabKey.TextColor3 = Color3.fromRGB(8, 8, 8)
+tabKey.TextSize = 17
+tabKey.Font = Enum.Font.GothamBold
+tabKey.ZIndex = 21
+tabKey.Parent = openTab
+
+local tabKeyCorner = Instance.new("UICorner")
+tabKeyCorner.CornerRadius = UDim.new(0, 8)
+tabKeyCorner.Parent = tabKey
+
+local tabLabel = Instance.new("TextLabel")
+tabLabel.Size = UDim2.new(1, -10, 0, 30)
+tabLabel.Position = UDim2.new(0, 5, 0, 51)
+tabLabel.BackgroundTransparency = 1
+tabLabel.Text = "OPEN MENU"
+tabLabel.TextColor3 = Color3.fromRGB(190, 190, 190)
+tabLabel.TextSize = 9
+tabLabel.Font = Enum.Font.GothamBold
+tabLabel.ZIndex = 21
+tabLabel.Parent = openTab
 
 openTab.MouseEnter:Connect(function()
-    openTab.BackgroundColor3 = Color3.fromRGB(40, 44, 58)
+    TweenService:Create(openTab, TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundColor3 = Color3.fromRGB(24, 24, 24),
+        Position = UDim2.new(1, -16, 0.5, -47)
+    }):Play()
+    TweenService:Create(tabKey, TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    }):Play()
 end)
+
 openTab.MouseLeave:Connect(function()
-    openTab.BackgroundColor3 = Color3.fromRGB(27, 29, 39)
+    TweenService:Create(openTab, TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundColor3 = Color3.fromRGB(10, 10, 10),
+        Position = UDim2.new(1, -12, 0.5, -47)
+    }):Play()
+    TweenService:Create(tabKey, TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+    }):Play()
 end)
 
 -- ===== ABRIR / FECHAR COM M =====
 local menuOpen = false
-local mouseLockedBeforeMenu = true
+local camera = workspace.CurrentCamera
+local cameraTypeBeforeMenu = Enum.CameraType.Custom
+local cameraSubjectBeforeMenu = nil
+local cameraCFrameBeforeMenu = nil
+local menuScale = Instance.new("UIScale")
+menuScale.Scale = 1
+menuScale.Parent = mainContainer
 
-local function setMenuOpen(state)
+local openTweenInfo = TweenInfo.new(0.24, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+local closeTweenInfo = TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+
+-- Enquanto o menu estiver aberto, este BindToRenderStep impede o CameraModule
+-- padrão do Roblox de colocar MouseBehavior de volta em LockCenter.
+local function lockMenuCamera()
+    camera = workspace.CurrentCamera
+    if not camera then return end
+
+    camera.CameraType = Enum.CameraType.Scriptable
+    if cameraCFrameBeforeMenu then
+        camera.CFrame = cameraCFrameBeforeMenu
+    end
+
+    UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+    UserInputService.MouseIconEnabled = true
+end
+
+local function enableFreeMouse()
+    RunService:BindToRenderStep("OrbitMegaFTAP_FreeMouse", Enum.RenderPriority.Camera.Value + 10, lockMenuCamera)
+    lockMenuCamera()
+end
+
+local function disableFreeMouse()
+    pcall(function()
+        RunService:UnbindFromRenderStep("OrbitMegaFTAP_FreeMouse")
+    end)
+end
+
+local function setMenuOpen(state, instant)
+    if state == menuOpen and not instant then return end
     menuOpen = state
-    mainContainer.Visible = state
-    background.Visible = state
-    openTab.Visible = not state
+    camera = workspace.CurrentCamera
 
     if state then
-        mouseLockedBeforeMenu = (UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter)
-        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
-        UserInputService.MouseIconEnabled = true
-    else
-        if mouseLockedBeforeMenu then
-            UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-            UserInputService.MouseIconEnabled = false
+        -- Captura a câmera ANTES de congelá-la.
+        cameraTypeBeforeMenu = camera.CameraType
+        cameraSubjectBeforeMenu = camera.CameraSubject
+        cameraCFrameBeforeMenu = camera.CFrame
+
+        -- Libera o mouse imediatamente, antes da animação.
+        mainContainer.Visible = true
+        background.Visible = true
+        openTab.Visible = false
+        menuScale.Scale = 0.94
+        background.BackgroundTransparency = 1
+
+        enableFreeMouse()
+
+        if instant then
+            menuScale.Scale = 1
+            background.BackgroundTransparency = 0.42
+        else
+            TweenService:Create(menuScale, openTweenInfo, {Scale = 1}):Play()
+            TweenService:Create(background, openTweenInfo, {BackgroundTransparency = 0.42}):Play()
         end
+    else
+        -- O mouse continua livre durante a animação de fechamento.
+        if instant then
+            menuScale.Scale = 0.94
+            background.BackgroundTransparency = 1
+            mainContainer.Visible = false
+            background.Visible = false
+            openTab.Visible = true
+        else
+            local scaleTween = TweenService:Create(menuScale, closeTweenInfo, {Scale = 0.94})
+            local bgTween = TweenService:Create(background, closeTweenInfo, {BackgroundTransparency = 1})
+            scaleTween:Play()
+            bgTween:Play()
+            scaleTween.Completed:Wait()
+
+            mainContainer.Visible = false
+            background.Visible = false
+            openTab.Visible = true
+        end
+
+        disableFreeMouse()
+
+        -- Volta ao controle normal da câmera e prende o cursor novamente.
+        camera = workspace.CurrentCamera
+        if camera then
+            camera.CameraType = cameraTypeBeforeMenu
+            if camera.CameraType == Enum.CameraType.Custom then
+                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+                camera.CameraSubject = cameraSubjectBeforeMenu or humanoid or humanoidRootPart
+            end
+        end
+
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+        UserInputService.MouseIconEnabled = false
     end
 end
 
@@ -792,10 +941,10 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         orbitSettings.enabled = not orbitSettings.enabled
         if orbitSettings.enabled then
             toggleBtn.Text = "🟢  ÓRBITA ON"
-            toggleBtn.BackgroundColor3 = Color3.fromRGB(85, 180, 105)
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
         else
             toggleBtn.Text = "🔴  ÓRBITA OFF"
-            toggleBtn.BackgroundColor3 = Color3.fromRGB(190, 85, 85)
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
         end
     end
 end)
@@ -812,7 +961,7 @@ player.CharacterAdded:Connect(function(newChar)
 end)
 
 -- Começa fechado e mantém o mouse travado para o jogo em primeira pessoa.
-setMenuOpen(false)
+setMenuOpen(false, true)
 
 print("=" .. string.rep("=", 60))
 print("✨ ULTIMATE ORBIT MENU CARREGADO!")
