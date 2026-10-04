@@ -18,7 +18,7 @@ local orbitSettings = {
     height = 10,
     particleSize = 1,
     enabled = true,
-    keybind = Enum.KeyCode.E
+    keybind = Enum.KeyCode.Z
 }
 
 -- ===== PADRÕES DE ÓRBITA =====
